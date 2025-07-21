@@ -1,0 +1,94 @@
+using System.Collections;
+using System.Collections.Generic;
+using Unity.VisualScripting;
+using UnityEngine;
+/*
+ * Author: Parker Albright
+ * This script will contain all the basics for celestial body math in this
+ * physics simulation.
+ */
+public class CelestialBody : MonoBehaviour
+{
+  [Header("Orbital Settings")]
+   public Vector2 initialVelocity;
+   public float mass = 1f;
+   public Vector2 currentVelocity;
+
+  [Header("Line Settings")]
+  [SerializeField] private LineRenderer lineRenderer;
+  [SerializeField] private List<Vector3> trailPositions = new List<Vector3>();
+  [SerializeField] private int trailFadeCounter = 1;
+  [SerializeField] private Color trailColor = Color.white;
+  private Gradient gradient;
+
+  private void Start()
+   {
+    currentVelocity = initialVelocity;
+    lineRenderer = GetComponent<LineRenderer>();
+    lineRenderer.positionCount = 0;
+    SetGradient(); // Set's trail renderer settings
+   }
+
+
+  // Updates the celestial body
+  // To be called from outside
+  public void UpdateBody(Vector2 accelaration, float deltaTime)
+  {
+    UpdateVelocity(accelaration, deltaTime);
+    UpdatePosition(deltaTime);
+    UpdateTrail();
+  }
+
+  // Updates velocity each frame
+  private void UpdateVelocity(Vector2 accelaration, float deltaTime)
+  {
+    currentVelocity += accelaration * deltaTime;
+  }
+
+  // Updates position each frame
+  private void UpdatePosition(float deltaTime)
+  {
+    transform.position += (Vector3)(currentVelocity * deltaTime);
+  }
+
+  // Updates Trail
+  private void UpdateTrail()
+  {
+    AddTrailPoint();
+  }
+
+  // Adds trail point to the trail that follows the planet.
+  private void AddTrailPoint()
+  {
+    if (trailPositions.Count == 0 
+       || Vector3.Distance(trailPositions[trailPositions.Count - 1]
+       , transform.position) > 0.1f ) 
+    { 
+      trailPositions.Add(transform.position);
+      lineRenderer.positionCount = trailPositions.Count;
+      lineRenderer.SetPositions(trailPositions.ToArray());
+    }
+
+    while (trailPositions.Count > trailFadeCounter)
+    {
+      trailPositions.RemoveAt(0);
+    }
+  }
+  // Sets a gradient to the trail to have it fade out overtime
+  private void SetGradient()
+  {
+    gradient = new Gradient();
+    gradient.SetKeys(
+      new GradientColorKey[]
+      {
+        new GradientColorKey(trailColor, 1f),
+        new GradientColorKey(trailColor, 1f)
+      },
+      new GradientAlphaKey[]
+      {
+        new GradientAlphaKey(1f, 1f),
+        new GradientAlphaKey(0f, 0f)
+      });
+    lineRenderer.colorGradient = gradient;
+  }
+}
