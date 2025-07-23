@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 7837943162966507764}
   - component: {fileID: 1435706728835800769}
   - component: {fileID: 6512035853928314285}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Planet
   m_TagString: Celestial
   m_Icon: {fileID: 0}
@@ -188,7 +188,7 @@ LineRenderer:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: 0.1185171
+        value: 0.012010753
         inSlope: 0
         outSlope: 0
         tangentMode: 0
