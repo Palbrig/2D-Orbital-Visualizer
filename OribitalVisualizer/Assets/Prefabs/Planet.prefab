@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 6512035853928314285}
   m_Layer: 0
   m_Name: Planet
-  m_TagString: Untagged
+  m_TagString: Celestial
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -100,10 +100,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   initialVelocity: {x: 0, y: 0}
-  mass: 1
+  mass: 5
   currentVelocity: {x: 0, y: 0}
   lineRenderer: {fileID: 0}
   trailPositions: []
+  trailFadeCounter: 75
+  trailColor: {r: 0, g: 0.82075214, b: 1, a: 1}
+  scaleFactor: 0.2
+  bodyType: 0
+  materialMappings:
+  - bodyType: 0
+    material: {fileID: 2100000, guid: fa2e206588793714399ee645eb50701e, type: 2}
+  - bodyType: 1
+    material: {fileID: 2100000, guid: 70ec2a75fb43bf3409f20927e2c59ce3, type: 2}
+  - bodyType: 2
+    material: {fileID: 2100000, guid: f8dc59b55ecc9c440a92a02e4174b141, type: 2}
 --- !u!50 &1435706728835800769
 Rigidbody2D:
   serializedVersion: 4

@@ -9,6 +9,21 @@ using UnityEngine;
  */
 public class CelestialBody : MonoBehaviour
 {
+  public enum BodyType { Asteroid, Planet, Star }
+
+  [System.Serializable]
+  public struct BodyMaterialMapping
+  {
+    public BodyType bodyType;
+    public Material material;
+  }
+
+  // CONSTANTS
+  // Mass cut offs for planets
+  float SUN_MAX_MASS = 100f;
+  float PLANET_MAX_MASS = 50f;
+  float ASTEROIRD_MAX_MASS = 10f;
+
   [Header("Orbital Settings")]
    public Vector2 initialVelocity;
    public float mass = 1f;
@@ -21,9 +36,27 @@ public class CelestialBody : MonoBehaviour
   [SerializeField] private Color trailColor = Color.white;
   private Gradient gradient;
 
+  [Header("Body Settings")]
+  SpriteRenderer spriteRenderer;
+  public float scaleFactor = 0.2f;
+  public BodyType bodyType;
+
+  [Header("Material Map")]
+  public BodyMaterialMapping[] materialMappings;
+
+  private Dictionary<BodyType, Material> materialDict;
+
   private void Start()
    {
+    spriteRenderer = GetComponent<SpriteRenderer>();
+
+    // Set Up Dictionary
+    SetupMaterialDictionary();
+    ClassifyAndApplyMaterial();
+    ScaleByMass();
+
     currentVelocity = initialVelocity;
+
     lineRenderer = GetComponent<LineRenderer>();
     lineRenderer.positionCount = 0;
     SetGradient(); // Set's trail renderer settings
@@ -90,5 +123,64 @@ public class CelestialBody : MonoBehaviour
         new GradientAlphaKey(0f, 0f)
       });
     lineRenderer.colorGradient = gradient;
+  }
+
+  private void OnCollisionEnter2D(Collision2D collision)
+  {
+        if (collision.gameObject.CompareTag("Celestial"))
+        {
+          Destroy(collision.gameObject);
+          Destroy(gameObject);
+        }
+    }
+
+  // Initializes dictionary
+  private void SetupMaterialDictionary()
+  {
+    materialDict = new Dictionary<BodyType, Material>();
+
+    foreach (var mapping in materialMappings)
+    {
+      if(!materialDict.ContainsKey(mapping.bodyType))
+      {
+        materialDict.Add(mapping.bodyType, mapping.material);
+      }
+    }
+  }
+
+  // Classifies and applies material based off mass
+  private void ClassifyAndApplyMaterial()
+  {
+    if(mass <= ASTEROIRD_MAX_MASS)
+    {
+      bodyType = BodyType.Asteroid;
+      Debug.Log($"Setting celestial bodies body type to {bodyType} with mass = {mass}");
+    }
+    if (mass <= PLANET_MAX_MASS && mass > ASTEROIRD_MAX_MASS)
+    {
+      bodyType = BodyType.Planet;
+      Debug.Log($"Setting celestial bodies body type to {bodyType} with mass = {mass}");
+    }
+    if (mass <= SUN_MAX_MASS && mass > PLANET_MAX_MASS)
+    {
+      bodyType = BodyType.Star;
+      Debug.Log($"Setting celestial bodies body type to {bodyType} with mass = {mass}");
+    }
+
+    if(materialDict != null && materialDict.ContainsKey(bodyType))
+    {
+      spriteRenderer.material = materialDict[bodyType];
+    }
+    else
+    {
+      Debug.Log($"No material found for {{bodyType}}");
+    }
+  }
+
+  // Scales size of planet by mass
+  private void ScaleByMass()
+  {
+    float scale = Mathf.Sqrt(mass) * scaleFactor;
+    transform.localScale = new Vector3(scale, scale, 1f);
   }
 }
